@@ -27,6 +27,16 @@ public class CheckActivity extends AppCompatActivity {
 
         intent = getIntent();
         ArrayList<String> answers = intent.getExtras().getStringArrayList("answers");
+        String name = intent.getStringExtra("name");
+        TextView textViewIntro = findViewById(R.id.textView_intro);
+        String message = "";
+        if(answers.size() == 0){
+            message = "Hi, " + name + ". You have not taken any precautions.";
+        }
+        else{
+            message = "Hi, " + name + ". You have taken the following precautions.";
+        }
+        textViewIntro.setText(message);
         TextView textView = findViewById(R.id.textView);
         TextView textView2 = findViewById(R.id.textView2);
         TextView textView3 = findViewById(R.id.textView3);

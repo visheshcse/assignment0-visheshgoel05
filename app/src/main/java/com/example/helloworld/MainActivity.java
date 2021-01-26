@@ -52,11 +52,13 @@ public class MainActivity extends AppCompatActivity {
                         checkBox.setChecked(false);
                     }
                 }
+                editTextName.setText("");
             }
         });
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 ArrayList<String> answers = new ArrayList<>();
+                String name = editTextName.getText().toString();
                 Intent intent = new Intent(MainActivity.this, CheckActivity.class);
                 for(CheckBox question : questions){
                     if (question.isChecked()){
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 intent.putExtra("answers" , answers);
+                intent.putExtra("name", name);
                 startActivityForResult(intent, requestCode);
                 //startActivity(intent);
             }
