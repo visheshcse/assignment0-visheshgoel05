@@ -15,7 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    String status = "Initial";
+    String status = "";
     TextView textViewStatus;
     String state = "";
     String DEBUG_TAG = "MainActivityDebugInfo";
