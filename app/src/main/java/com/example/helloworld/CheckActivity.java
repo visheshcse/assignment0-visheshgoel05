@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
 public class CheckActivity extends AppCompatActivity {
-    String status = "You are not safe";
+    String status = "";
     Intent intent;
     String state = "";
     String DEBUG_TAG = "CheckActivityDebugInfo";
@@ -42,6 +42,9 @@ public class CheckActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(answers.size() == 5){
                     status = "You are safe";
+                }
+                else{
+                    status = "You are not safe";
                 }
             }
         });
