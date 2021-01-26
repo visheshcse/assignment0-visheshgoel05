@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 editTextName.setText("");
+                textViewStatus.setText("");
             }
         });
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
