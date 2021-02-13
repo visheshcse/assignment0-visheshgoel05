@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HelloWorld</string>
+    <string name="app_name">Music Player App</string>
     <string name="greeting_text">Hello World! "From Name" </string>
     <string name="title_activity_download">DownloadActivity</string>
     <!--

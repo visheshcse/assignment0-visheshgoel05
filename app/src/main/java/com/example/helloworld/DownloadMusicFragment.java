@@ -3,6 +3,8 @@ package com.example.helloworld;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -33,7 +35,11 @@ public class DownloadMusicFragment extends Fragment {
     MediaPlayer mediaPlayer = new MediaPlayer();
     TextView textViewDownloadStatus;
     EditText editTextMusicServerPath;
+    Button buttonPlayDownload;
+    Button buttonStopDownload;
+    Button buttonStartDownload;
     String downloadFilename = "downloadmusic.mp3";
+    boolean downloadStatus = true;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -78,18 +84,37 @@ public class DownloadMusicFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_download_music, container, false);
-        Button buttonStartDownload = (Button) view.findViewById(R.id.buttonStartDownload);
-        Button buttonPlayDownload = (Button) view.findViewById(R.id.buttonPlayDownload);
-        Button buttonStopDownload = (Button) view.findViewById(R.id.buttonStopDownload);
+        buttonStartDownload = (Button) view.findViewById(R.id.buttonStartDownload);
+        buttonPlayDownload = (Button) view.findViewById(R.id.buttonPlayDownload);
+        buttonStopDownload = (Button) view.findViewById(R.id.buttonStopDownload);
         editTextMusicServerPath = (EditText) view.findViewById(R.id.editTextServerName);
         textViewDownloadStatus = (TextView) view.findViewById(R.id.textViewDownloadStatus);
+        buttonPlayDownload.setEnabled(false);
+        buttonStopDownload.setEnabled(false);
         String[] files = getActivity().fileList();
         //String filePath = "file://" + getFilesDir()+File.separator+"s1.mp3";
         String filePath = getActivity().getFilesDir() + File.separator + downloadFilename;
 
         buttonStartDownload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                new DownloadeMusicTask().execute();
+                if(editTextMusicServerPath.getText() == null || editTextMusicServerPath.getText().toString().length() == 0
+                        || editTextMusicServerPath.getText().toString().isEmpty() ||
+                        !editTextMusicServerPath.getText().toString().substring(editTextMusicServerPath.getText().toString().lastIndexOf(".")).
+                                equals(".mp3")){
+                    textViewDownloadStatus.setText("Please Enter Music File Path");
+                }
+                else if(!checkNetworkStatus()){
+                    textViewDownloadStatus.setText("Not Connected to the Internet, Please connect to Internet");
+                }
+                else{
+
+                    buttonStartDownload.setEnabled(false);
+                    new DownloadeMusicTask().execute();
+                }
+                if(!downloadStatus){
+                    buttonPlayDownload.setEnabled(true);
+                    buttonStopDownload.setEnabled(true);
+                }
             }
         });
 
@@ -97,15 +122,14 @@ public class DownloadMusicFragment extends Fragment {
         musicServiceDownloadIntent.putExtra("MusicServiceData", "DownloadMusicPlayActivity");
         musicServiceDownloadIntent.putExtra("MusicFilename", downloadFilename);
 
+
+
         buttonPlayDownload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                musicServiceDownloadIntent.putExtra("MusicFilePlayname",
+                        editTextMusicServerPath.getText().toString().
+                                substring(editTextMusicServerPath.getText().toString().lastIndexOf("/")+1));
                 getActivity().startService(musicServiceDownloadIntent);
-                /*try {
-                    mediaPlayer.setDataSource(filePath);
-                    mediaPlayer.prepareAsync();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
                 buttonPlayDownload.setEnabled(false);
             }
         });
@@ -113,13 +137,6 @@ public class DownloadMusicFragment extends Fragment {
         buttonStopDownload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getActivity().stopService(musicServiceDownloadIntent);
-                /*try {
-                    if (mediaPlayer != null) {
-                        mediaPlayer.reset();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
                 buttonPlayDownload.setEnabled(true);
             }
         });
@@ -136,26 +153,56 @@ public class DownloadMusicFragment extends Fragment {
         return view;
     }
 
-    private class DownloadeMusicTask extends AsyncTask<Void, Void, Void> {
+    private boolean checkNetworkStatus() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
-        File outputFile = null;
+    private class DownloadeMusicTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            textViewDownloadStatus.setText("Download Started");
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textViewDownloadStatus.setText("Download Started");
+                }
+            });
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            textViewDownloadStatus.setText("Download Complete");
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!downloadStatus){
+                        textViewDownloadStatus.setText("Please Enter Correct Music File Path");
+                    }
+                    else{
+                        buttonPlayDownload.setEnabled(true);
+                        buttonStopDownload.setEnabled(true);
+                        textViewDownloadStatus.setText("Download Complete");
+                    }
+                    buttonStartDownload.setEnabled(true);
+
+                }
+            });
         }
 
         @Override
         protected Void doInBackground(Void... arg0) {
             try {
-                textViewDownloadStatus.setText("Download In Progress");
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textViewDownloadStatus.setText("Download In Progress");
+                    }
+                });
+
                 //URL url = new URL("http://faculty.iiitd.ac.in/~mukulika/s1.mp3");
                 URL url = new URL(editTextMusicServerPath.getText().toString());
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -165,15 +212,17 @@ public class DownloadMusicFragment extends Fragment {
                 FileOutputStream fileOutputStream = getActivity().openFileOutput(downloadFilename, Context.MODE_PRIVATE);
                 byte[] bufferData = new byte[1024];
                 int length = 0;
+
                 while ((length = inputStream.read(bufferData)) != -1) {
                     fileOutputStream.write(bufferData, 0, length);
                 }
 
                 fileOutputStream.close();
                 inputStream.close();
+
             } catch (Exception e) {
                 e.printStackTrace();
-                outputFile = null;
+                downloadStatus = false;
                 Log.e("Error in Download Files", "Music Download Exception " + e.getMessage());
             }
             return null;

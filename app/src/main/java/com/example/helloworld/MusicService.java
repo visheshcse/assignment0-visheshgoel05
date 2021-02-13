@@ -30,18 +30,19 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotificationChannel();
+
+        String musicServiceCallingActivity = intent.getStringExtra("MusicServiceData");
+        String musicFilePlayName = intent.getStringExtra("MusicFilePlayname");
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "MusicService")
-                .setContentTitle("Content Title")
-                .setContentText("Context Text")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Music File Playing")
+                .setContentText(musicFilePlayName)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         notificationManager = NotificationManagerCompat.from(this);
 
-        String musicServiceCallingActivity = intent.getStringExtra("MusicServiceData");
-
-
-        if(musicServiceCallingActivity.equals("DownloadMusicPlayActivity")){
+        if(musicServiceCallingActivity != null && "DownloadMusicPlayActivity".equals(musicServiceCallingActivity)){
             String musicFileName = intent.getStringExtra("MusicFilename");
             try {
                 String filePath = getFilesDir() + File.separator + musicFileName;
@@ -75,8 +76,8 @@ public class MusicService extends Service {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "V";
-            String description = "des";
+            CharSequence name = "Notification";
+            String description = "NotificationDescription";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel("MusicService", name, importance);
             channel.setDescription(description);
