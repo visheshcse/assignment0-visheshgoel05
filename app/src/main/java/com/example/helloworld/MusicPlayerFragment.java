@@ -1,5 +1,6 @@
 package com.example.helloworld;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,12 +55,40 @@ public class MusicPlayerFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_music_player, container, false);
+        Button startService = (Button)view.findViewById(R.id.buttonStartService);
+        Button stopService = (Button)view.findViewById(R.id.buttonStopService);
+        Button downloadActivity = (Button)view.findViewById(R.id.buttonDownloadActivity);
+
+        Intent intent = new Intent(getActivity(), MusicService.class);
+        Intent launchDownloadActivityIntent = new Intent(getActivity(), DownloadActivity.class);
+        startService.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getActivity().startService(intent);
+            }
+        });
+
+
+        stopService.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getActivity().stopService(intent);
+            }
+        });
+
+        downloadActivity.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivityForResult(launchDownloadActivityIntent, 1);
+            }
+        });
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_music_player, container, false);
+        return view;
+
+
     }
 }
