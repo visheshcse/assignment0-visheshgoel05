@@ -62,22 +62,22 @@ public class MusicPlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_music_player, container, false);
-        Button startService = (Button)view.findViewById(R.id.buttonStartService);
-        Button stopService = (Button)view.findViewById(R.id.buttonStopService);
-        Button downloadActivity = (Button)view.findViewById(R.id.buttonDownloadActivity);
+        Button startService = (Button) view.findViewById(R.id.buttonStartService);
+        Button stopService = (Button) view.findViewById(R.id.buttonStopService);
+        Button downloadActivity = (Button) view.findViewById(R.id.buttonDownloadActivity);
 
-        Intent intent = new Intent(getActivity(), MusicService.class);
+        Intent musicServiceIntent = new Intent(getActivity(), MusicService.class);
         Intent launchDownloadActivityIntent = new Intent(getActivity(), DownloadActivity.class);
+
         startService.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                getActivity().startService(intent);
+                getActivity().startService(musicServiceIntent);
             }
         });
 
-
         stopService.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                getActivity().stopService(intent);
+                getActivity().stopService(musicServiceIntent);
             }
         });
 
@@ -86,7 +86,7 @@ public class MusicPlayerFragment extends Fragment {
                 startActivityForResult(launchDownloadActivityIntent, 1);
             }
         });
-        // Inflate the layout for this fragment
+
         return view;
 
 

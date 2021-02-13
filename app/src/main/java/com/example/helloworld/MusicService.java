@@ -14,9 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.io.File;
+import java.io.IOException;
+
 public class MusicService extends Service {
     NotificationManagerCompat notificationManager;
     MediaPlayer mediaPlayer;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -26,17 +30,42 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotificationChannel();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "MusicServic")
-                        .setContentTitle("Content Title")
-                        .setContentText("Context Text")
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "MusicService")
+                .setContentTitle("Content Title")
+                .setContentText("Context Text")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         notificationManager = NotificationManagerCompat.from(this);
-        if(mediaPlayer == null){
-            mediaPlayer = MediaPlayer.create(this, R.raw.s1);
+
+        String musicServiceCallingActivity = intent.getStringExtra("MusicServiceData");
+
+
+        if(musicServiceCallingActivity.equals("DownloadMusicPlayActivity")){
+            String musicFileName = intent.getStringExtra("MusicFilename");
+            try {
+                String filePath = getFilesDir() + File.separator + musicFileName;
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setDataSource(filePath);
+                mediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        mediaPlayer.start();
+        else{
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer.create(this, R.raw.s1);
+            }
+            mediaPlayer.start();
+        }
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer media) {
+                media.start();
+            }
+        });
+
 
         //notificationManager.notify(1, builder.build());
         startForeground(1, builder.build());
@@ -45,16 +74,12 @@ public class MusicService extends Service {
 
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "V";
             String description = "des";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("MusicServic", name, importance);
+            NotificationChannel channel = new NotificationChannel("MusicService", name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
@@ -64,7 +89,8 @@ public class MusicService extends Service {
     public void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
-            mediaPlayer.release();
+            //mediaPlayer.release();
+            mediaPlayer.reset();
             mediaPlayer = null;
         }
         //notificationManager.cancel(1);
