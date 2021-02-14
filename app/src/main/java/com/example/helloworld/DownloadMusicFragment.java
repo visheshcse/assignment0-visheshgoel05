@@ -98,22 +98,21 @@ public class DownloadMusicFragment extends Fragment {
         buttonStartDownload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(editTextMusicServerPath.getText() == null || editTextMusicServerPath.getText().toString().length() == 0
-                        || editTextMusicServerPath.getText().toString().isEmpty() ||
-                        !editTextMusicServerPath.getText().toString().substring(editTextMusicServerPath.getText().toString().lastIndexOf(".")).
-                                equals(".mp3")){
+                        || editTextMusicServerPath.getText().toString().isEmpty() ){
                     textViewDownloadStatus.setText("Please Enter Music File Path");
+                }
+                else if(editTextMusicServerPath.getText().toString().lastIndexOf(".") == -1 ||
+                        !editTextMusicServerPath.getText().toString().
+                                substring(editTextMusicServerPath.getText().toString().lastIndexOf(".")).
+                        equals(".mp3")){
+                    textViewDownloadStatus.setText("Please Enter Correct Music File Path");
                 }
                 else if(!checkNetworkStatus()){
                     textViewDownloadStatus.setText("Not Connected to the Internet, Please connect to Internet");
                 }
                 else{
-
                     buttonStartDownload.setEnabled(false);
                     new DownloadeMusicTask().execute();
-                }
-                if(!downloadStatus){
-                    buttonPlayDownload.setEnabled(true);
-                    buttonStopDownload.setEnabled(true);
                 }
             }
         });
@@ -188,7 +187,6 @@ public class DownloadMusicFragment extends Fragment {
                         textViewDownloadStatus.setText("Download Complete");
                     }
                     buttonStartDownload.setEnabled(true);
-
                 }
             });
         }
@@ -196,6 +194,7 @@ public class DownloadMusicFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... arg0) {
             try {
+                downloadStatus = true;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

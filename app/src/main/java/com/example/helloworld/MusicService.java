@@ -55,7 +55,21 @@ public class MusicService extends Service {
         }
         else{
             if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer.create(this, R.raw.s1);
+                if(musicFilePlayName != null && musicFilePlayName.equals("Second Song")){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.sound2);
+                }
+                else if(musicFilePlayName != null && musicFilePlayName.equals("Third Song")){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.sound3);
+                }
+                else if(musicFilePlayName != null && musicFilePlayName.equals("Fourth Song")){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.sound4);
+                }
+                else if(musicFilePlayName != null && musicFilePlayName.equals("Fifth Song")){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.sound5);
+                }
+                else {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.sound1);
+                }
             }
             mediaPlayer.start();
         }

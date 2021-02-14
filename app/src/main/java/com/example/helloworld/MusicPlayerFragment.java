@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -16,6 +18,8 @@ import android.widget.Button;
  * create an instance of this fragment.
  */
 public class MusicPlayerFragment extends Fragment {
+
+    String songSelected = "First Song";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -65,19 +69,23 @@ public class MusicPlayerFragment extends Fragment {
         Button startService = (Button) view.findViewById(R.id.buttonStartService);
         Button stopService = (Button) view.findViewById(R.id.buttonStopService);
         Button downloadActivity = (Button) view.findViewById(R.id.buttonDownloadActivity);
+        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
 
         Intent musicServiceIntent = new Intent(getActivity(), MusicService.class);
         Intent launchDownloadActivityIntent = new Intent(getActivity(), DownloadActivity.class);
 
         startService.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                musicServiceIntent.putExtra("MusicFilePlayname", songSelected);
                 getActivity().startService(musicServiceIntent);
+                startService.setEnabled(false);
             }
         });
 
         stopService.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getActivity().stopService(musicServiceIntent);
+                startService.setEnabled(true);
             }
         });
 
@@ -87,8 +95,53 @@ public class MusicPlayerFragment extends Fragment {
             }
         });
 
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.one:
+                        songSelected = "First Song";
+                        break;
+                    case R.id.two:
+                        songSelected = "Second Song";
+                        break;
+                    case R.id.three:
+                        songSelected = "Third Song";
+                        break;
+                    case R.id.four:
+                        songSelected = "Fourth Song";
+                        break;
+                    case R.id.five:
+                        songSelected = "Fifth Song";
+                        break;
+                }
+            }
+        });
         return view;
-
-
     }
+
+    /*public void onRadioButtonClicked(View view) {
+        boolean checked = ((RadioButton) view).isChecked();
+        switch(view.getId()) {
+            case R.id.one:
+                if (checked)
+                    songSelected = "First Song";
+                    break;
+            case R.id.two:
+                if (checked)
+                    songSelected = "Second Song";
+                    break;
+            case R.id.three:
+                if (checked)
+                    songSelected = "Third Song";
+                break;
+            case R.id.four:
+                if (checked)
+                    songSelected = "Fourth Song";
+                break;
+            case R.id.five:
+                if (checked)
+                    songSelected = "Fifth Song";
+                break;
+        }
+    }*/
 }

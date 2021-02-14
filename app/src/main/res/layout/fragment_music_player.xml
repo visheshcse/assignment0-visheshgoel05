@@ -7,28 +7,84 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:text="Please Select The Song You Want To Play"
+            android:layout_marginTop="80dp"
+            android:textColor="@color/black"
+            android:textSize="16dp"/>
+
+        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:checkedButton="@+id/one"
+            android:id="@+id/radioGroup">
+            <RadioButton android:id="@+id/one"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="First Song"
+                android:layout_gravity="center"/>
+            <RadioButton android:id="@+id/two"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Second Song"
+                android:layout_gravity="center"/>
+            <RadioButton android:id="@+id/three"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Third Song"
+                android:layout_gravity="center"/>
+            <RadioButton android:id="@+id/four"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Fourth Song"
+                android:layout_gravity="center"/>
+            <RadioButton android:id="@+id/five"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Fifth Song"
+                android:layout_gravity="center"/>
+        </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/darker_gray"/>
 
         <Button
             android:id="@+id/buttonStartService"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:text="Start Music Service"
-            android:layout_marginTop="80dp"/>
+            android:text="Play Music"
+            android:layout_marginTop="50dp"/>
 
         <Button
             android:id="@+id/buttonStopService"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:text="Stop Music Service"
+            android:text="Stop Music"
             android:layout_marginTop="30dp"/>
 
         <Button
             android:id="@+id/buttonDownloadActivity"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:text="Download Activity"
+            android:text="Download Music File"
             android:layout_marginTop="30dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="30dp"
+            android:background="@android:color/darker_gray"/>
 
     </LinearLayout>
 </ScrollView>
