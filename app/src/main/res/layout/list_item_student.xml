@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_vertical">
+    android:padding="8dp">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/black"/>
+    <TextView
+        android:id="@+id/student_roll_no"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:layout_marginLeft="25dp"
+        android:layout_gravity="center"
+        android:textSize="22sp"
+        android:textColor="@color/black"
+        android:text="Student Roll No"/>
+    <TextView
+        android:id="@+id/student_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="25dp"
+        android:layout_gravity="center"
+        android:textSize="22sp"
+        android:textColor="@color/black"
+        android:text="Student Name"/>
+    <TextView
+        android:id="@+id/student_dept"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="25dp"
+        android:layout_gravity="center"
+        android:textSize="19sp"
+        android:textColor="@color/black"
+        android:text="Student Department"/>
+    <TextView
+        android:id="@+id/student_emailId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="25dp"
+        android:layout_gravity="center"
+        android:textSize="19sp"
+        android:textColor="@color/black"
+        android:text="Student Email Id"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/black"/>
+</LinearLayout>
