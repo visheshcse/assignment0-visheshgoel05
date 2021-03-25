@@ -46,11 +46,11 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"/>
 
-        <Switch
-            android:id="@+id/recordTemp"
+       <Switch
+            android:id="@+id/recordMagnetic"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:text="Save Temperature Data"
+            android:text="Save Magnetic Field Data"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"/>
 
@@ -59,13 +59,13 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="Show Average Accelerometer"
-            android:layout_marginTop="50dp"/>
+            android:layout_marginTop="90dp"/>
 
         <Button
-            android:id="@+id/showAvgTemp"
+            android:id="@+id/showAvgLight"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="Show Average Temperature"
+            android:text="Show Average Light"
             android:layout_marginTop="30dp"/>
 
         <View
@@ -76,10 +76,23 @@
 
         <TextView
             android:id="@+id/showAvg"
-            android:layout_width="300dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="@color/black"
+            android:textSize="16dp"/>
+
+        <TextView
+            android:id="@+id/detectStationary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:textColor="@color/black"
             android:textSize="16dp"/>
 

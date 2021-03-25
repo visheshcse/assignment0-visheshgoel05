@@ -16,7 +16,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,10 +29,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements SensorEventListener, LocationListener {
     private SensorManager sensorManager;
     private LocationManager locationManager;
-    private Sensor accSensor, linearAccSensor, temperatureSensor, proximitySensor, lightSensor;;
-    private Button showAvgAccelerometer, showAvgTemp;
-    private TextView showAvg;
-    private Switch saveAccData, saveLinAccData, saveLightData, saveGPSData, saveProximityData, saveTempData;
+    private Sensor accSensor, linearAccSensor, magneticSensor, proximitySensor, lightSensor;;
+    private Button showAvgAccelerometer, showAvgLight;
+    private TextView showAvg, detectStationary;
+    private Switch saveAccData, saveLinAccData, saveLightData, saveGPSData, saveProximityData, saveMagneticData;
 
 
     @Override
@@ -41,25 +40,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         showAvgAccelerometer = (Button) findViewById(R.id.showAvgAccelerometer);
-        showAvgTemp = (Button) findViewById(R.id.showAvgTemp);
+        showAvgLight = (Button) findViewById(R.id.showAvgLight);
         showAvg = (TextView) findViewById(R.id.showAvg);
+        detectStationary = (TextView)findViewById(R.id.detectStationary);
         saveAccData = (Switch) findViewById(R.id.recordAccelerometer);
         saveLinAccData = (Switch) findViewById(R.id.recordLinAcc);
         saveLightData = (Switch) findViewById(R.id.recordLight);
         saveGPSData = (Switch) findViewById(R.id.recordGps);
         saveProximityData = (Switch) findViewById(R.id.recordProximity);
-        saveTempData = (Switch) findViewById(R.id.recordTemp);
-
+        saveMagneticData = (Switch) findViewById(R.id.recordMagnetic);
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+        AccelerometerDao accelerometerDao = db.accelerometerDao();
+        accelerometerDao.deleteAll();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         Log.d("Debug", deviceSensors.toString());
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         linearAccSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
+        saveAccData.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(!saveAccData.isChecked()){
+                    detectStationary.setText("");
+                }
+            }
+        });
         showAvgAccelerometer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +91,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 sumX = sumX/accList.size();
                 sumY = sumY/accList.size();
                 sumZ = sumZ/accList.size();
-                showAvg.setText(Float.toString(sumX) + " " + Float.toString(sumY) + " " + Float.toString(sumZ));
+                showAvg.setText("Average Accelerometer Value: \n x = " + Float.toString(sumX) + " , y = " + Float.toString(sumY) + " , z = " + Float.toString(sumZ));
+            }
+        });
+        
+        showAvgLight.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                float sumX=0;
+                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+                LightDao lightDao = db.lightDao();
+                long time2 = System.currentTimeMillis();
+                long time1 = time2 - 3600000;
+                ArrayList<Light> lightList = (ArrayList<Light>) lightDao.findPast1hr(time1, time2);
+                Log.d("Debug", lightList.toString());
+                Log.d("Debug", time1 + " " + time2);
+                for(int i = 0; i < lightList.size(); i++){
+                    sumX = sumX + lightList.get(i).getLightValue();
+                }
+                sumX = sumX/lightList.size();
+                showAvg.setText("Average Light Value: " + Float.toString(sumX));
             }
         });
     }
@@ -89,10 +120,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, linearAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, linearAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -104,13 +135,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 0);
             return;
         }
-        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         sensorManager.unregisterListener(this);
+        locationManager.removeUpdates(this);
     }
 
     @Override
@@ -126,7 +158,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
                 AccelerometerDao accelerometerDao = db.accelerometerDao();
                 accelerometerDao.insertAll(accelerometer);
-                Toast.makeText(this, "x=" + x + ", y=" + y + ", z=" + z, Toast.LENGTH_LONG).show();
+                double value = Math.sqrt(x*x + y*y + z*z);
+                value = (double) Math.round(value * 10) / 10;
+                //Log.d("DebugValue", value + "");
+                if(value >= 9.5 && value <= 10.5){
+                    Log.d("DebugValueStationary", value + "");
+                    detectStationary.setText("Device is Stationary");
+                }else{
+                    Log.d("DebugValueMoving", value + "");
+                    detectStationary.setText("Device is Moving");
+                }
+                //Toast.makeText(this, "x=" + x + ", y=" + y + ", z=" + z, Toast.LENGTH_LONG).show();
             }
         }
         else if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
@@ -135,28 +177,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 float y = event.values[1];
                 float z = event.values[2];
                 long time = System.currentTimeMillis();
-                Toast.makeText(this, "x=" + x + ", y=" + y + ", z=" + z, Toast.LENGTH_LONG).show();
+                LinearAcceleration linearAcceleration = new LinearAcceleration(x, y, z, time);
+                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+                LinearAccelerationDao linearAccelerationDao = db.linearAccelerationDao();
+                linearAccelerationDao.insertAll(linearAcceleration);
+                //Toast.makeText(this, "x=" + x + ", y=" + y + ", z=" + z, Toast.LENGTH_LONG).show();
             }
         }
-        else if(event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
-            if(saveTempData.isChecked()) {
+        else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
+            if(saveMagneticData.isChecked()) {
                 float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
                 long time = System.currentTimeMillis();
-                Toast.makeText(this, "x=" + x, Toast.LENGTH_LONG).show();
+                Magnetometer magnetometer = new Magnetometer(x, y, z, time);
+                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+                MagnetometerDao magnetometerDao = db.magnetometerDao();
+                magnetometerDao.insertAll(magnetometer);
+                //Toast.makeText(this, "x=" + x + ", y=" + y + ", z=" + z, Toast.LENGTH_LONG).show();
             }
         }
         else if(event.sensor.getType() == Sensor.TYPE_LIGHT){
             if(saveLightData.isChecked()) {
                 float x = event.values[0];
                 long time = System.currentTimeMillis();
-                Toast.makeText(this, "x=" + x, Toast.LENGTH_LONG).show();
+                Light light = new Light(x, time);
+                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+                LightDao lightDao = db.lightDao();
+                lightDao.insertAll(light);
+                //Toast.makeText(this, "x=" + x, Toast.LENGTH_LONG).show();
             }
         }
         else if(event.sensor.getType() == Sensor.TYPE_PROXIMITY){
             if(saveProximityData.isChecked()) {
                 float x = event.values[0];
                 long time = System.currentTimeMillis();
-                Toast.makeText(this, "x=" + x, Toast.LENGTH_LONG).show();
+                Proximity proximity = new Proximity(x, time);
+                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+                ProximityDao proximityDao = db.proximityDao();
+                proximityDao.insertAll(proximity);
+                //Toast.makeText(this, "x=" + x, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -172,7 +236,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if(saveGPSData.isChecked()) {
             double x = location.getLatitude();
             double y = location.getLongitude();
-            Toast.makeText(this, "x=" + x + ", y=" + y, Toast.LENGTH_LONG).show();
+            long time = System.currentTimeMillis();
+            GPS gps = new GPS(x, y, time);
+            AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                    AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            GPSDao gpsDAO = db.gpsDao();
+            gpsDAO.insertAll(gps);
+            //Toast.makeText(this, "x=" + x + ", y=" + y, Toast.LENGTH_LONG).show();
         }
     }
 }

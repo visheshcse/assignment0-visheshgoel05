@@ -4,8 +4,14 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "LinearAcceleration")
-public class LinearAcceleration {
+@Entity
+public class Magnetometer {
+    public Magnetometer(float x, float y, float z, long timestamp) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.timestamp = timestamp;
+    }
 
     @PrimaryKey(autoGenerate = true)
     public int uid;
@@ -21,13 +27,6 @@ public class LinearAcceleration {
 
     @ColumnInfo(name = "Timestamp")
     public long timestamp;
-
-    public LinearAcceleration(float x, float y, float z, long timestamp) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.timestamp = timestamp;
-    }
 
     public float getX() {
         return x;
@@ -63,8 +62,9 @@ public class LinearAcceleration {
 
     @Override
     public String toString() {
-        return "LinearAcceleration{" +
-                "x=" + x +
+        return "Magnetometer{" +
+                "uid=" + uid +
+                ", x=" + x +
                 ", y=" + y +
                 ", z=" + z +
                 ", timestamp=" + timestamp +

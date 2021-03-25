@@ -1,10 +1,12 @@
 package com.example.helloworld;
 
+import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
 import java.util.List;
 
+@Dao
 public interface LinearAccelerationDao {
     @Insert
     void insertAll(LinearAcceleration... linearAcceleration);

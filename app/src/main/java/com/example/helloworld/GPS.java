@@ -1,10 +1,12 @@
 package com.example.helloworld;
 
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+@Entity
 public class GPS {
-    public GPS(float latitude, float longitude, long timestamp) {
+    public GPS(double latitude, double longitude, long timestamp) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.timestamp = timestamp;
@@ -14,10 +16,10 @@ public class GPS {
     public int uid;
 
     @ColumnInfo(name = "latitude")
-    public float latitude;
+    public double latitude;
 
     @ColumnInfo(name = "longitude")
-    public float longitude;
+    public double longitude;
 
     @ColumnInfo(name = "Timestamp")
     public long timestamp;
