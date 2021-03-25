@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button showAvgAccelerometer, showAvgLight;
     private TextView showAvg, detectStationary;
     private Switch saveAccData, saveLinAccData, saveLightData, saveGPSData, saveProximityData, saveMagneticData;
-
+    private final int PERMISSION_REQUEST_CODE = 0 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +49,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         saveGPSData = (Switch) findViewById(R.id.recordGps);
         saveProximityData = (Switch) findViewById(R.id.recordProximity);
         saveMagneticData = (Switch) findViewById(R.id.recordMagnetic);
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-        AccelerometerDao accelerometerDao = db.accelerometerDao();
-        accelerometerDao.deleteAll();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         Log.d("Debug", deviceSensors.toString());
@@ -132,10 +128,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-            return;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        else{
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        }
+
     }
 
     @Override
@@ -232,6 +230,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
+    public void onProviderEnabled(@NonNull String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+
+    }
+
+    @Override
     public void onLocationChanged(@NonNull Location location) {
         if(saveGPSData.isChecked()) {
             double x = location.getLatitude();
@@ -244,5 +252,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             gpsDAO.insertAll(gps);
             //Toast.makeText(this, "x=" + x + ", y=" + y, Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission is granted. Continue the action or workflow
+                    // in your app.
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+
+                }  else {
+                    // Explain to the user that the feature is unavailable because
+                    // the features requires a permission that the user has denied.
+                    // At the same time, respect the user's decision. Don't link to
+                    // system settings in an effort to convince the user to change
+                    // their decision.
+                }
+                return;
+        }
+        // Other 'case' lines to check for other
+        // permissions this app might request.
     }
 }
