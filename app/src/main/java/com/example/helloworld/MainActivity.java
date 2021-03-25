@@ -79,15 +79,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 ArrayList<Accelerometer> accList = (ArrayList<Accelerometer>) accelerometerDao.findPast1hr(time1, time2);
                 Log.d("Debug", accList.toString());
                 Log.d("Debug", time1 + " " + time2);
-                for(int i = 0; i < accList.size(); i++){
-                    sumX = sumX + accList.get(i).getX();
-                    sumY = sumY + accList.get(i).getY();
-                    sumZ = sumZ + accList.get(i).getZ();
+                if(accList.size() > 0){
+                    for(int i = 0; i < accList.size(); i++){
+                        sumX = sumX + accList.get(i).getX();
+                        sumY = sumY + accList.get(i).getY();
+                        sumZ = sumZ + accList.get(i).getZ();
+                    }
+                    sumX = sumX/accList.size();
+                    sumY = sumY/accList.size();
+                    sumZ = sumZ/accList.size();
+                    showAvg.setText("Average Accelerometer Value: \n x = " + Float.toString(sumX) + " , y = " + Float.toString(sumY) + " , z = " + Float.toString(sumZ));
+
                 }
-                sumX = sumX/accList.size();
-                sumY = sumY/accList.size();
-                sumZ = sumZ/accList.size();
-                showAvg.setText("Average Accelerometer Value: \n x = " + Float.toString(sumX) + " , y = " + Float.toString(sumY) + " , z = " + Float.toString(sumZ));
+                else{
+                    showAvg.setText("No data found for Accelerometer for past 1 hour ");
+                }
             }
         });
         
@@ -103,11 +109,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 ArrayList<Light> lightList = (ArrayList<Light>) lightDao.findPast1hr(time1, time2);
                 Log.d("Debug", lightList.toString());
                 Log.d("Debug", time1 + " " + time2);
-                for(int i = 0; i < lightList.size(); i++){
-                    sumX = sumX + lightList.get(i).getLightValue();
+                if(lightList.size() > 0){
+                    for(int i = 0; i < lightList.size(); i++){
+                        sumX = sumX + lightList.get(i).getLightValue();
+                    }
+                    sumX = sumX/lightList.size();
+                    showAvg.setText("Average Light Value: " + Float.toString(sumX));
                 }
-                sumX = sumX/lightList.size();
-                showAvg.setText("Average Light Value: " + Float.toString(sumX));
+                else{
+                    showAvg.setText("No data found for Light for past 1 hour ");
+                }
             }
         });
     }
@@ -131,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
         }
         else{
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
 
     }
@@ -159,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 double value = Math.sqrt(x*x + y*y + z*z);
                 value = (double) Math.round(value * 10) / 10;
                 //Log.d("DebugValue", value + "");
-                if(value >= 9.5 && value <= 10.5){
+                if(value >= 9.7 && value <= 9.9){
                     Log.d("DebugValueStationary", value + "");
                     detectStationary.setText("Device is Stationary");
                 }else{
@@ -264,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission is granted. Continue the action or workflow
                     // in your app.
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
                 }  else {
                     // Explain to the user that the feature is unavailable because
