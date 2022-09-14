@@ -1,4 +1,5 @@
-# Mobile Computing course All Assignments in different branches
+# Mobile Computing Course Assignments<br/>
+All Assignments in different branches
 
 
 # cse535-mc-startercode
